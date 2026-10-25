@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jendor Superstores</title>
+<style>
+:root{--p:#7c3aed;--pd:#5b21b6;--pl:#f3e8ff;--bg:#fff;--card:#fff;--tx:#282828;--mu:#75757a;--bd:#e5e5ea;--ok:#15803d;--bad:#b91c1c;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select{font:inherit;color:inherit}
+.top{background:var(--pd);color:#fff;font-size:12px;display:flex;justify-content:space-between;gap:8px;padding:6px 12px}
+.top button{background:none;border:0;color:#fff;cursor:pointer;text-decoration:underline;padding:0}
+.hd{background:var(--card);border-bottom:1px solid var(--bd);padding:10px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:24px;color:var(--p);letter-spacing:-1px;cursor:pointer;line-height:1}
+.logo small{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mu);font-weight:600}
+.sr{flex:1;min-width:200px;display:flex}
+.sr input{flex:1;border:1px solid var(--bd);border-right:0;border-radius:6px 0 0 6px;padding:9px 12px;background:var(--bg);min-width:0}
+.sr button{background:var(--p);color:#fff;border:0;border-radius:0 6px 6px 0;padding:0 16px;font-weight:700;cursor:pointer}
+.hl{display:flex;gap:14px;font-weight:600}
+.hl span{cursor:pointer}
+.tabs{display:flex;gap:4px;padding:8px 12px 0;max-width:1200px;margin:auto}
+.tabs button{border:0;background:var(--pl);color:var(--pd);padding:8px 14px;border-radius:8px 8px 0 0;font-weight:700;cursor:pointer}
+.tabs button.on{background:var(--p);color:#fff}
+
+main{max-width:1200px;margin:auto;padding:12px}
+.top-grid{display:grid;grid-template-columns:200px 1fr 220px;gap:12px}
+.side,.promo>div,.sec,.box{background:var(--card);border-radius:8px;border:1px solid var(--bd)}
+.side{padding:6px 0}.side button{display:block;width:100%;text-align:left;background:none;border:0;padding:9px 14px;cursor:pointer}
+.side button:hover,.side button.on{background:var(--pl);color:var(--p);font-weight:700}
+.hero{border-radius:8px;min-height:220px;background:linear-gradient(120deg,#4c1d95,#7c3aed 55%,#c084fc);color:#fff;padding:28px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.hero h1{margin:0;font-size:30px;line-height:1.1}.hero button{align-self:flex-start;background:#fff;color:var(--pd);border:0;border-radius:6px;padding:10px 18px;font-weight:800;cursor:pointer}
+.promo{display:grid;gap:12px}.promo>div{padding:16px;display:flex;flex-direction:column;gap:6px;cursor:pointer;justify-content:center}
+.promo b{color:var(--p);font-size:16px}
+.sec{margin-top:14px;overflow:hidden}
+.sh{display:flex;align-items:center;gap:10px;padding:10px 14px;font-weight:800;font-size:16px;border-bottom:1px solid var(--bd)}
+.sh.f{background:var(--p);color:#fff;border:0}.sh .cd{margin-left:auto;font-weight:700;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1px;background:var(--bd)}
+.pc{background:var(--card);padding:10px;display:flex;flex-direction:column;gap:4px;position:relative}
+.pc:hover{box-shadow:0 2px 14px rgba(124,58,237,.25);z-index:1}
+.im{height:130px;border-radius:6px;display:grid;place-items:center;font-size:62px;background:var(--pl)}
+.nm{min-height:36px;overflow:hidden}.pr{font-weight:800;font-size:16px}.old{color:var(--mu);text-decoration:line-through;font-size:12px}
+.bd{position:absolute;top:16px;right:16px;background:var(--pl);color:var(--p);font-weight:800;font-size:12px;padding:3px 6px;border-radius:4px}
+.st{color:var(--mu);font-size:12px}.lw{color:var(--bad);font-size:12px;font-weight:600}
+.add{margin-top:auto;background:var(--p);color:#fff;border:0;border-radius:6px;padding:9px;font-weight:800;cursor:pointer;text-transform:uppercase;font-size:12px}
+.add:disabled{background:var(--bd);color:var(--mu);cursor:not-allowed}
+.pt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:12px}
+.box{padding:14px}.box h3{margin:0 0 10px}
+.f label{display:block;font-size:12px;color:var(--mu);margin:8px 0 3px}
+.f input,.f select,.ctl input,.u input,.u select{width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px;background:var(--bg)}
+.btn{background:var(--p);color:#fff;border:0;border-radius:6px;padding:8px 12px;font-weight:700;cursor:pointer}
+.btn.g{background:var(--pl);color:var(--pd)}
+
+.row{border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:8px}
+.row .t{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.ctl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.ctl div{display:flex;gap:4px}.ctl .btn{padding:6px 9px}
+.u{display:grid;grid-template-columns:1fr 1fr;gap:8px}.u .w{grid-column:1/-1}
+.fd{border-left:3px solid var(--p);padding:6px 10px;margin-bottom:6px;background:var(--bg);border-radius:0 6px 6px 0;font-size:13px}
+.fd.ok{border-color:var(--ok)}.fd.no{border-color:var(--bad)}.fd pre{white-space:pre-wrap;word-break:break-all;margin:6px 0 0;font-size:11px}
+.fd summary{cursor:pointer}
+footer{text-align:center;background:var(--pd);color:#fff;padding:22px 12px;font-size:13px;margin-top:24px}footer a{color:#e9d5ff;cursor:pointer;text-decoration:underline;font-weight:700}.lg{max-width:380px;margin:30px auto}
+.hide{display:none}
+@media(max-width:900px){.top-grid{grid-template-columns:1fr}.side,.promo{display:none}.pt{grid-template-columns:1fr}.hero h1{font-size:24px}.ctl{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top"><span>Free delivery on orders over ₦50,000</span><button data-v="portal">Sell on Jendor</button></div>
+<div class="hd">
+  <div class="logo" data-v="store">Jendor<small>Superstores</small></div>
+  <div class="sr"><input id="q" placeholder="Search products, brands and categories"><button id="sb">SEARCH</button></div>
+  <div class="hl"><span>Account</span><span>Help</span><span id="cart">🛒 Cart (0)</span></div>
+</div>
+
+
+<main>
+<section id="store">
+  <div class="top-grid">
+    <div class="side" id="cats"></div>
+    <div class="hero"><span>JENDOR SUPERSTORES</span><h1>Mega Price Drop<br>Up to 40% off</h1><span>New prices land the moment suppliers update them.</span><button data-v="portal">Sell on Jendor</button></div>
+    <div class="promo"><div data-v="portal"><b>Sell on Jendor</b><span>Add products and run discounts</span></div><div><b>Pay on delivery</b><span>Available in Lagos and Abuja</span></div></div>
+  </div>
+  <div class="sec" id="flash"><div class="sh f">⚡ Flash Sales<span class="cd" id="cd"></span></div><div class="grid" id="fg"></div></div>
+  <div class="sec"><div class="sh" id="ah">Top selling items</div><div class="grid" id="ag"></div></div>
+</section>
+
+<section id="portal" class="hide">
+  <div class="box lg" id="login"><h3>Supplier login</h3><div class="f"><label>Supplier</label><select id="lu"></select><label>Password</label><input id="lp" type="password" autocomplete="current-password"><div class="lw" id="le" style="margin-top:8px"></div><button class="btn" style="margin-top:12px;width:100%" id="lb">Log in</button></div><p class="st">Authorised suppliers only. Need an account? Contact Jendor Supplier Support.</p></div>
+  <div id="dash" class="hide">
+  <div class="box" style="margin-bottom:12px">
+    <div class="u">
+      <div><label class="st">Signed in as</label><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b id="who"></b><button class="btn g" id="lo">Log out</button></div></div>
+      
+      <div class="w" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn g" id="bad">Send malformed test</button></div>
+    </div>
+  </div>
+  <div class="pt">
+    <div>
+      <div class="box f"><h3>Add a product</h3>
+        <label>Product name</label><input id="an" placeholder="e.g. Samsung 32 inch TV">
+        <label>Price (₦)</label><input id="ap" type="number" min="0">
+        <label>Stock quantity</label><input id="as" type="number" min="0">
+        <label>Category</label><select id="ac"></select>
+        <label>Emoji icon</label><input id="ae" value="📦" maxlength="2">
+        <button class="btn" style="margin-top:12px;width:100%" id="aa">Add product</button>
+      </div>
+      <div class="box" style="margin-top:12px"><h3>Event feed</h3><div id="feed"><span class="st">No events yet. Change a price or stock level.</span></div></div>
+    </div>
+    <div class="box"><h3 id="mh">My products</h3><div id="mine"></div></div>
+  </div>
+  <details class="box" style="margin-top:12px"><summary class="st" style="cursor:pointer">Integration settings</summary><div class="f"><label>n8n endpoint URL</label><input id="wh" placeholder="https://your-n8n-domain/…"></div></details>
+  </div>
+</section>
+</main>
+<footer><div><a data-v="portal">Supplier Portal</a></div><div style="margin-top:8px">© Jendor Superstores 2026 • Designed by JayFresh Inc.</div></footer>
+
+<script>
+const CUR="NGN",CATS=["Phones","Electronics","Fashion","Groceries","Home"],SUP=["Acme Electronics","Naija Fashion Hub","FreshMart Foods"];
+let P=[
+["TEC-001","Tecno Spark 20 Pro 8/256GB","Phones","📱",189000,215000,14,0],
+["ORA-002","Oraimo FreePods 3 Earbuds","Electronics","🎧",24500,24500,40,0],
+["HIS-003","Hisense 43 inch Smart TV","Electronics","📺",245000,310000,6,0],
+["BIN-004","Binatone Standing Fan 18 inch","Home","🌀",32000,32000,12,0],
+["SCA-005","Scanfrost Blender 1.5L","Home","🧃",21500,28000,8,0],
+["NFH-006","Men Running Sneakers","Fashion","👟",18500,25000,22,1],
+["NFH-007","Ankara Maxi Dress","Fashion","👗",15000,15000,9,1],
+["NFH-008","Leather Handbag","Fashion","👜",22000,22000,4,1],
+["FRM-009","Mama Gold Rice 50kg","Groceries","🍚",78000,85000,30,2],
+["FRM-010","Kings Vegetable Oil 5L","Groceries","🫒",14500,14500,55,2],
+["FRM-011","Peak Milk Tin 400g x12","Groceries","🥫",11200,12800,3,2],
+["ACM-012","Redmi Power Bank 20000mAh","Electronics","🔋",16800,19500,25,0]
+].map(a=>({sku:a[0],name:a[1],cat:a[2],ico:a[3],price:a[4],orig:a[5],stock:a[6],sup:SUP[a[7]]}));
+let sup=SUP[0],cat="All",qs="",cart=0,feed=[];
+try{const s=localStorage.getItem("jendor_products");if(s){const a=JSON.parse(s);if(Array.isArray(a)&&a.length)P=a}}catch(_){}
+const $=id=>document.getElementById(id),N=n=>"₦"+Number(n).toLocaleString("en-NG"),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dc=p=>Math.round((1-p.price/p.orig)*100);
+function card(p){const d=dc(p);return `<div class="pc">${d>0?`<span class="bd">-${d}%</span>`:""}<div class="im">${esc(p.ico)}</div><div class="nm">${esc(p.name)}</div><div class="pr">${N(p.price)}</div>${d>0?`<div class="old">${N(p.orig)}</div>`:`<div class="old">&nbsp;</div>`}<div>${p.stock>0&&p.stock<=5?`<span class="lw">${p.stock} units left</span>`:`<span class="st">★★★★☆</span>`}</div><button class="add" data-add="${p.sku}" ${p.stock<1?"disabled":""}>${p.stock<1?"Sold out":"Add to cart"}</button></div>`}
+function renderStore(){
+ $("cats").innerHTML=["All",...CATS].map(c=>`<button class="${c===cat?"on":""}" data-cat="${c}">${c==="All"?"All categories":c}</button>`).join("");
+ const m=P.filter(p=>(cat==="All"||p.cat===cat)&&p.name.toLowerCase().includes(qs.toLowerCase()));
+ const f=m.filter(p=>dc(p)>0);
+ $("flash").classList.toggle("hide",!f.length);$("fg").innerHTML=f.map(card).join("");
+ $("ah").textContent=cat==="All"?"Top selling items":cat;$("ag").innerHTML=m.length?m.map(card).join(""):`<div class="pc">No products found.</div>`;
+}
+function renderPortal(){if(!authed)return;
+ $("mh").textContent="Products from "+sup;
+ $("mine").innerHTML=P.filter(p=>p.sup===sup).map(p=>`<div class="row"><div class="t"><span>${esc(p.ico)} ${esc(p.name)}</span><span>${N(p.price)}${dc(p)>0?` <span class="old">${N(p.orig)}</span>`:""}</span></div><div class="st">${p.sku} · ${p.stock} in stock${dc(p)>0?` · ${dc(p)}% off`:""}</div>
+ <div class="ctl"><div><input id="pr-${p.sku}" type="number" min="0" placeholder="New price"><button class="btn" data-a="price" data-s="${p.sku}">Set</button></div>
+ <div><input id="st-${p.sku}" type="number" min="0" placeholder="Stock"><button class="btn" data-a="stock" data-s="${p.sku}">Set</button></div>
+ <div><input id="dc-${p.sku}" type="number" min="1" max="90" placeholder="% off"><button class="btn" data-a="disc" data-s="${p.sku}">Go</button>${dc(p)>0?`<button class="btn g" data-a="reset" data-s="${p.sku}">End</button>`:""}</div></div></div>`).join("")||`<span class="st">No products yet.</span>`;
+}
+function renderFeed(){if(!feed.length)return;$("feed").innerHTML=feed.slice(0,12).map(e=>`<div class="fd ${e.c}"><details><summary><b>${e.t}</b> ${esc(e.payload.event_type||"(no event_type)")} ${esc(e.payload.sku||"")} → ${esc(e.st)}</summary><pre>${esc(JSON.stringify(e.payload,null,1))}</pre></details></div>`).join("")}
+async function send(payload){
+ const e={t:new Date().toLocaleTimeString(),payload,st:"sending…",c:""};feed.unshift(e);renderFeed();
+ const url=$("wh").value.trim();
+ try{localStorage.setItem("jendor_wh",url)}catch(_){}
+ if(!url){e.st="logged locally (endpoint not set)"}
+ else{try{const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});let j=null;try{j=await r.json()}catch(_){}
+   e.st=r.status+(r.ok?" accepted":" rejected")+(j&&j.errors?": "+j.errors.join("; "):"");e.c=r.ok?"ok":"no";if(r.ok)setTimeout(loadProducts,1500)}catch(err){e.st="failed: "+err.message;e.c="no"}}
+ renderFeed();
+}
+const base=(t,p)=>({event_type:t,sku:p.sku,supplier:p.sup,product_name:p.name,currency:CUR,row_id:p.id});
+function refresh(){try{localStorage.setItem("jendor_products",JSON.stringify(P))}catch(_){}renderStore();renderPortal()}
+document.addEventListener("click",ev=>{
+ const t=ev.target.closest("button,.logo,[data-v]");if(!t)return;
+ if(t.dataset.v){["store","portal"].forEach(v=>$(v).classList.toggle("hide",v!==t.dataset.v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===t.dataset.v));window.scrollTo(0,0);return}
+ if(t.dataset.cat){cat=t.dataset.cat;renderStore();return}
+ if(t.dataset.add){const p=P.find(x=>x.sku===t.dataset.add);if(p&&p.stock>0){cart++;$("cart").textContent="🛒 Cart ("+cart+")"}return}
+ const p=P.find(x=>x.sku===t.dataset.s),a=t.dataset.a;
+ if(a&&p){const v=+($((a==="price"?"pr-":a==="stock"?"st-":"dc-")+p.sku)||{}).value;
+  if(a==="price"){if(!(v>=0)||$("pr-"+p.sku).value==="")return;const o=p.price;p.price=v;if(v>p.orig)p.orig=v;send({...base("price_change",p),old_price:o,new_price:v,orig_price:p.orig})}
+  if(a==="stock"){if(!Number.isInteger(v)||v<0||$("st-"+p.sku).value==="")return;const o=p.stock;p.stock=v;send({...base("stock_change",p),old_stock:o,new_stock:v})}
+  if(a==="disc"){if(!(v>=1&&v<=90))return;const o=p.price,n=Math.round(p.orig*(1-v/100));p.price=n;send({...base("discount_started",p),old_price:o,new_price:n,discount_pct:v})}
+  if(a==="reset"){const o=p.price;p.price=p.orig;send({...base("discount_ended",p),old_price:o,new_price:p.orig})}
+  refresh();return}
+});
+$("aa").onclick=()=>{const n=$("an").value.trim(),pr=+$("ap").value,s=+$("as").value;if(!n||!(pr>=0)||$("ap").value===""||!Number.isInteger(s)||$("as").value==="")return;
+ const p={sku:"JND-"+Math.random().toString(36).slice(2,6).toUpperCase(),name:n,cat:$("ac").value,ico:$("ae").value||"📦",price:pr,orig:pr,stock:s,sup};P.unshift(p);
+ send({...base("product_added",p),price:pr,stock:s,category:p.cat,icon:p.ico,orig_price:pr});
+ ["an","ap","as"].forEach(i=>$(i).value="");refresh()};
+$("bad").onclick=()=>send({event_type:"price_change",supplier:sup,old_price:"abc",new_price:-5});
+const CRED={"Acme Electronics":"acme@2026","Naija Fashion Hub":"naija@2026","FreshMart Foods":"fresh@2026"};let authed=false;
+function gate(){$("login").classList.toggle("hide",authed);$("dash").classList.toggle("hide",!authed);if(authed){$("who").textContent=sup;renderPortal()}}
+function doLogin(){if($("lp").value&&$("lp").value===CRED[$("lu").value]){sup=$("lu").value;authed=true;$("lp").value="";$("le").textContent="";gate()}else{$("le").textContent="Incorrect supplier or password."}}
+$("lb").onclick=doLogin;$("lp").onkeydown=e=>{if(e.key==="Enter")doLogin()};
+$("lo").onclick=()=>{authed=false;feed=[];$("feed").innerHTML='<span class="st">No events yet. Change a price or stock level.</span>';gate()};
+$("sb").onclick=()=>{qs=$("q").value;renderStore()};$("q").oninput=()=>{qs=$("q").value;renderStore()};
+$("lu").innerHTML=SUP.map(s=>`<option>${s}</option>`).join("");$("ac").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
+const DEFAULT_ENDPOINT="https://jayfreshgraphics014.app.n8n.cloud/webhook/supplier-events";$("wh").value=DEFAULT_ENDPOINT;try{$("wh").value=localStorage.getItem("jendor_wh")||DEFAULT_ENDPOINT}catch(_){}
+function tick(){const e=new Date();e.setHours(23,59,59,999);let s=Math.max(0,Math.floor((e-new Date())/1000));const f=n=>String(n).padStart(2,"0");$("cd").textContent="Time left: "+f(Math.floor(s/3600))+"h "+f(Math.floor(s%3600/60))+"m "+f(s%60)+"s"}
+const PRODUCTS_URL="https://jayfreshgraphics014.app.n8n.cloud/webhook/products";
+async function loadProducts(){try{const r=await fetch(PRODUCTS_URL);if(!r.ok)return;const a0=await r.json(),a=Array.isArray(a0)?a0:[a0];if(!a.length||!a[0].sku)return;
+P=a.map(x=>({id:x.id,sku:x.sku,name:x.name,cat:x.category,ico:x.emoji||"📦",price:+x.price||0,orig:+x.orig_price||+x.price||0,stock:+x.stock||0,sup:x.supplier}));refresh()}catch(_){}}
+tick();setInterval(tick,1000);refresh();loadProducts();setInterval(()=>{if(!$("store").classList.contains("hide"))loadProducts()},30000);
+</script>
+</body>
+</html>
