@@ -1,0 +1,301 @@
+{
+  "name": "Supplier Webhook Event Parser & Alerter v2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "supplier-events",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "n1",
+      "name": "Supplier Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "webhookId": "supplier-events"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body ?? {};\nconst errors = [];\nconst TYPES = ['price_change', 'stock_change', 'product_added', 'discount_started', 'discount_ended'];\nconst type = String(body.event_type ?? '').toLowerCase().trim();\nif (!TYPES.includes(type)) errors.push('event_type must be one of: ' + TYPES.join(', '));\nconst sku = String(body.sku ?? '').trim();\nif (!sku) errors.push('sku is required');\nconst supplier = String(body.supplier ?? '').trim();\nif (!supplier) errors.push('supplier is required');\nconst name = String(body.product_name ?? '').trim();\nconst currency = String(body.currency ?? '').trim();\nconst category = String(body.category ?? '').trim();\n\nconst num = (v) => (v === null || v === undefined || v === '' || Number.isNaN(Number(v))) ? null : Number(v);\nconst money = (label, v) => { const n = num(v); if (n === null || n < 0) errors.push(label + ' must be a non-negative number'); return n; };\nconst count = (label, v) => { const n = num(v); if (n === null || n < 0 || !Number.isInteger(n)) errors.push(label + ' must be a non-negative integer'); return n; };\n\nlet oldVal = null, newVal = null, discountPct = null, stock = null;\nif (type === 'price_change' || type === 'discount_ended') {\n  oldVal = money('old_price', body.old_price); newVal = money('new_price', body.new_price);\n} else if (type === 'stock_change') {\n  oldVal = count('old_stock', body.old_stock); newVal = count('new_stock', body.new_stock);\n} else if (type === 'product_added') {\n  if (!name) errors.push('product_name is required for product_added');\n  newVal = money('price', body.price); stock = count('stock', body.stock);\n} else if (type === 'discount_started') {\n  oldVal = money('old_price', body.old_price); newVal = money('new_price', body.new_price);\n  discountPct = num(body.discount_pct);\n  if (discountPct === null || discountPct < 1 || discountPct > 90) errors.push('discount_pct must be between 1 and 90');\n  if (oldVal !== null && newVal !== null && newVal >= oldVal) errors.push('new_price must be lower than old_price for a discount');\n}\n\nconst esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nif (errors.length) {\n  return [{ json: {\n    valid: false, errors,\n    message: '⛔ <b>Malformed supplier event rejected</b>\\n' + errors.map(e => '• ' + esc(e)).join('\\n') +\n             '\\n\\n<code>' + esc(JSON.stringify(body).slice(0, 500)) + '</code>'\n  } }];\n}\n\nconst pct = (oldVal === null || oldVal === 0 || newVal === null) ? null : Math.round(((newVal - oldVal) / oldVal) * 1000) / 10;\nlet severity = 'info';\nif (type === 'stock_change') severity = newVal === 0 ? 'critical' : (newVal <= 5 ? 'warning' : 'info');\nelse if (type === 'price_change' && pct !== null) severity = Math.abs(pct) >= 20 ? 'critical' : (Math.abs(pct) >= 10 ? 'warning' : 'info');\nelse if (type === 'discount_started') severity = discountPct >= 40 ? 'warning' : 'info';\nelse if (type === 'product_added' && stock === 0) severity = 'warning';\n\nconst icon = { info: 'ℹ️', warning: '⚠️', critical: '🚨' }[severity];\nconst cur = currency ? currency + ' ' : '';\nconst money_ = (v) => cur + Number(v).toLocaleString('en-US');\nconst head = { price_change: 'Price change', stock_change: 'Stock change', product_added: '🆕 New product listed', discount_started: '🏷️ Discount started', discount_ended: '🔚 Discount ended' }[type];\nconst arrow = (type === 'price_change' || type === 'stock_change') ? (newVal > oldVal ? ' 📈' : (newVal < oldVal ? ' 📉' : ' ➖')) : '';\nlet lines = `<b>Supplier:</b> ${esc(supplier)}\\n<b>SKU:</b> ${esc(sku)}` + (name ? `\\n<b>Product:</b> ${esc(name)}` : '');\nif (type === 'price_change' || type === 'discount_ended') lines += `\\n<b>Was:</b> ${esc(money_(oldVal))}\\n<b>Now:</b> ${esc(money_(newVal))}` + (pct !== null ? `\\n<b>Change:</b> ${pct > 0 ? '+' : ''}${pct}%` : '');\nif (type === 'stock_change') lines += `\\n<b>Was:</b> ${oldVal} units\\n<b>Now:</b> ${newVal} units` + (pct !== null ? `\\n<b>Change:</b> ${pct > 0 ? '+' : ''}${pct}%` : '');\nif (type === 'product_added') lines += `\\n<b>Price:</b> ${esc(money_(newVal))}\\n<b>Stock:</b> ${stock} units` + (category ? `\\n<b>Category:</b> ${esc(category)}` : '');\nif (type === 'discount_started') lines += `\\n<b>Regular:</b> ${esc(money_(oldVal))}\\n<b>Discounted:</b> ${esc(money_(newVal))}\\n<b>Discount:</b> ${discountPct}% off`;\nconst message = `${icon} <b>${head}</b>${arrow}\\n${lines}\\n<b>Severity:</b> ${severity}`;\n\nreturn [{ json: {\n  valid: true, errors: [],\n  event_type: type, sku, supplier, product_name: name,\n  old_value: oldVal, new_value: newVal, change_pct: pct, currency, severity,\n  received_at: new Date().toISOString(), raw_payload: JSON.stringify(body), message\n} }];"
+      },
+      "id": "n2",
+      "name": "Validate & Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "n3",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "create",
+        "databaseId": "604726",
+        "tableId": "1281521",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "valid,errors,message"
+      },
+      "id": "n4",
+      "name": "Log to Baserow",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        680,
+        100
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'accepted', row_id: $json.id } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "n5",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $('Validate & Parse').item.json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "id": "n6",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        100
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'rejected', errors: $json.errors } }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "n7",
+      "name": "Respond 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        680,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "id": "n8",
+      "name": "Telegram Rejection Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        900,
+        320
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n9",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=🔥 <b>Workflow error</b>\n<b>Workflow:</b> {{ $json.workflow.name }}\n<b>Failed node:</b> {{ $json.execution.lastNodeExecuted }}\n<b>Error:</b> {{ $json.execution.error.message }}\n<b>Execution:</b> {{ $json.execution.url }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "id": "n10",
+      "name": "Telegram Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        560
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Supplier Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate & Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Parse": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "Log to Baserow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond 400",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Baserow": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond 200": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond 400": {
+      "main": [
+        [
+          {
+            "node": "Telegram Rejection Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Telegram Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
